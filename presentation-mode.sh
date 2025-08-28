@@ -76,11 +76,29 @@ demonstrate_security_isolation() {
     
     # Start multiple services
     print_info "Starting multiple client services with different configurations..."
-    sudo systemctl start tech-demo-client@web-app.service &
-    sudo systemctl start tech-demo-client@api-service.service &
-    sudo systemctl start tech-demo-client@mobile-app.service &
+    sudo systemctl start tech-demo-client@web-app.service
+    sudo systemctl start tech-demo-client@api-service.service
+    sudo systemctl start tech-demo-client@mobile-app.service
     
-    sleep "$PAUSE_MEDIUM"
+    print_info "Waiting for services to fully start..."
+    sleep 3
+    
+    # Verify services are running
+    local running_count=0
+    for service in web-app api-service mobile-app; do
+        if systemctl is-active --quiet "tech-demo-client@${service}.service"; then
+            running_count=$((running_count + 1))
+        fi
+    done
+    
+    if [[ $running_count -eq 0 ]]; then
+        print_warning "No services started successfully - checking logs..."
+        sudo journalctl -u tech-demo-client@web-app.service --no-pager -n 5 || true
+    else
+        print_success "${running_count} services running successfully"
+    fi
+    
+    sleep "$PAUSE_SHORT"
     
     print_security "Each service gets its own isolated credential directory"
     print_security "Credentials are only accessible to the specific service process"
