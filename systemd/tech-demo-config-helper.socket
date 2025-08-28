@@ -1,0 +1,11 @@
+[Unit]
+Description=Tech Demo Config Helper Socket
+Documentation=man:systemd.socket(5)
+
+[Socket]
+ListenStream=/run/tech-demo-config-helper.sock
+SocketMode=0666
+Accept=yes
+
+[Install]
+WantedBy=sockets.target

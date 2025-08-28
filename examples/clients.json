@@ -1,0 +1,20 @@
+{
+    "demo-app": {
+        "client_id": "demo-app-client-id",
+        "client_secret": "demo-app-secret-key",
+        "endpoint": "https://auth.demo.example.com/oauth2/token",
+        "scopes": ["read", "write", "admin"]
+    },
+    "demo-api": {
+        "client_id": "demo-api-client-id",
+        "client_secret": "demo-api-secret-key", 
+        "endpoint": "https://auth.demo.example.com/oauth2/token",
+        "scopes": ["api", "read"]
+    },
+    "demo-mobile": {
+        "client_id": "demo-mobile-client-id",
+        "client_secret": "demo-mobile-secret-key",
+        "endpoint": "https://auth.demo.example.com/oauth2/token", 
+        "scopes": ["mobile", "read"]
+    }
+}

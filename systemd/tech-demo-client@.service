@@ -1,0 +1,14 @@
+[Unit]
+Description=Tech Demo Client (instance %i)
+
+[Service]
+Type=simple
+LoadCredential=DEMO_CONFIG_%i:/run/tech-demo-config-helper.sock
+ExecStart=/usr/local/bin/tech-demo-client.sh %i
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

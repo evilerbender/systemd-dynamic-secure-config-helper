@@ -1,0 +1,10 @@
+[Unit]
+Description=Tech Demo Config Helper (connection %i)
+Documentation=man:systemd.service(5)
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/tech-demo-config-helper.sh
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
