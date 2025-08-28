@@ -407,6 +407,26 @@ cleanup_demo() {
     print_security "• System returned to secure baseline state"
 }
 
+check_installation() {
+    # Check if tech-demo services are installed
+    if ! systemctl list-unit-files | grep -q "tech-demo-config-helper.socket"; then
+        print_error "Tech demo services not installed!"
+        print_info "Please install the services first:"
+        echo -e "${CYAN}  sudo ./install.sh${NC}"
+        echo
+        print_info "Or manually install:"
+        echo -e "${CYAN}  sudo cp scripts/tech-demo-config-helper.sh /usr/local/bin/${NC}"
+        echo -e "${CYAN}  sudo cp scripts/tech-demo-client.sh /usr/local/bin/${NC}"
+        echo -e "${CYAN}  sudo cp systemd/tech-demo-config-helper.socket /etc/systemd/system/${NC}"
+        echo -e "${CYAN}  sudo cp systemd/tech-demo-config-helper@.service /etc/systemd/system/${NC}"
+        echo -e "${CYAN}  sudo cp systemd/tech-demo-client@.service /etc/systemd/system/${NC}"
+        echo -e "${CYAN}  sudo systemctl daemon-reload${NC}"
+        echo -e "${CYAN}  sudo systemctl enable tech-demo-config-helper.socket${NC}"
+        echo -e "${CYAN}  sudo systemctl start tech-demo-config-helper.socket${NC}"
+        exit 1
+    fi
+}
+
 main() {
     # Check if running as root or with sudo
     if [[ $EUID -ne 0 ]]; then
@@ -414,6 +434,9 @@ main() {
         print_info "Please run with: sudo $0"
         exit 1
     fi
+    
+    # Check if services are installed
+    check_installation
     
     print_header
     
