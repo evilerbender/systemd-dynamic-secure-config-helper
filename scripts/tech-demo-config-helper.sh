@@ -56,6 +56,56 @@ EOF
 }
 EOF
             ;;
+        "web-app")
+            cat << 'EOF'
+{
+    "client_id": "web-app-client-id",
+    "client_secret": "web-app-secret-key",
+    "endpoint": "https://auth.demo.example.com/oauth2/token",
+    "scopes": ["web", "read", "write"]
+}
+EOF
+            ;;
+        "api-service")
+            cat << 'EOF'
+{
+    "client_id": "api-service-client-id",
+    "client_secret": "api-service-secret-key",
+    "endpoint": "https://auth.demo.example.com/oauth2/token",
+    "scopes": ["api", "service", "read"]
+}
+EOF
+            ;;
+        "mobile-app")
+            cat << 'EOF'
+{
+    "client_id": "mobile-app-client-id",
+    "client_secret": "mobile-app-secret-key",
+    "endpoint": "https://auth.demo.example.com/oauth2/token",
+    "scopes": ["mobile", "app", "read"]
+}
+EOF
+            ;;
+        "batch-processor")
+            cat << 'EOF'
+{
+    "client_id": "batch-processor-client-id",
+    "client_secret": "batch-processor-secret-key",
+    "endpoint": "https://auth.demo.example.com/oauth2/token",
+    "scopes": ["batch", "processing", "admin"]
+}
+EOF
+            ;;
+        "monitoring")
+            cat << 'EOF'
+{
+    "client_id": "monitoring-client-id",
+    "client_secret": "monitoring-secret-key",
+    "endpoint": "https://auth.demo.example.com/oauth2/token",
+    "scopes": ["monitoring", "metrics", "read"]
+}
+EOF
+            ;;
         *)
             cat << EOF
 {

@@ -345,13 +345,29 @@ demonstrate_scalability() {
     
     print_info "Verifying all services are running with isolated credentials..."
     echo
+    local failed_services=()
     for service in "${services[@]}"; do
         if systemctl is-active --quiet "tech-demo-client@${service}.service"; then
             echo -e "${GREEN}  ✓ ${service}: Running with isolated credentials${NC}"
         else
             echo -e "${RED}  ✗ ${service}: Failed to start${NC}"
+            failed_services+=("$service")
         fi
     done
+    
+    # Show diagnostics for failed services
+    if [[ ${#failed_services[@]} -gt 0 ]]; then
+        echo
+        print_warning "Checking why services failed to start..."
+        for service in "${failed_services[@]:0:2}"; do  # Only show first 2 to avoid spam
+            echo -e "${YELLOW}Logs for tech-demo-client@${service}.service:${NC}"
+            sudo journalctl -u "tech-demo-client@${service}.service" --no-pager -n 3 2>/dev/null || true
+            echo
+        done
+        
+        print_info "Note: Some services may fail if client configurations don't exist in the helper script"
+        print_info "This is expected behavior - the system only serves configured clients"
+    fi
     
     sleep "$PAUSE_MEDIUM"
     
