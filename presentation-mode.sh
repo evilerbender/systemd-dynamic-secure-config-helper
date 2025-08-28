@@ -31,7 +31,7 @@ print_section() {
     local title="$1"
     echo
     echo -e "${BOLD}${YELLOW}▶ ${title}${NC}"
-    echo -e "${YELLOW}${'─'*80}${NC}"
+    printf "${YELLOW}%80s${NC}\n" | tr ' ' '─'
 }
 
 print_info() {
