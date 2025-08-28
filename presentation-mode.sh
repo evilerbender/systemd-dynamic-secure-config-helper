@@ -442,8 +442,26 @@ demonstrate_scalability() {
     print_security "Compliance & Auditing"
     print_info "systemd provides comprehensive audit trails..."
     echo
-    echo -e "${BOLD}Recent credential access events:${NC}"
-    sudo journalctl -u tech-demo-config-helper.service --since "5 minutes ago" --no-pager | tail -5 || print_info "No recent events"
+    echo -e "${BOLD}Service Activity Audit Trail:${NC}"
+    
+    # Show socket connections
+    echo -e "${CYAN}Socket Connection Events:${NC}"
+    sudo journalctl -u tech-demo-config-helper.socket --since "10 minutes ago" --no-pager -n 3 2>/dev/null || print_info "No socket events"
+    echo
+    
+    # Show helper service activations
+    echo -e "${CYAN}Credential Helper Activations:${NC}"
+    sudo journalctl -u "tech-demo-config-helper@*.service" --since "10 minutes ago" --no-pager -n 5 2>/dev/null || print_info "No helper activations"
+    echo
+    
+    # Show client service credential access
+    echo -e "${CYAN}Client Credential Access Events:${NC}"
+    sudo journalctl -u "tech-demo-client@*.service" --since "10 minutes ago" --no-pager -n 3 | grep -E "(Configuration|credential|CLIENT_CONFIG)" || print_info "No client credential events"
+    echo
+    
+    # Show systemd credential operations
+    echo -e "${CYAN}systemd Credential Operations:${NC}"
+    sudo journalctl --since "10 minutes ago" --no-pager -n 10 | grep -i "credential\|LoadCredential" || print_info "No systemd credential operations logged"
     
     print_success "Built-in compliance features:"
     print_success "• Complete audit trail of credential access"
