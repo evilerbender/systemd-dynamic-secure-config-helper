@@ -92,7 +92,7 @@ demonstrate_security_isolation() {
     print_info "Examining process isolation..."
     echo
     echo -e "${BOLD}Process Tree:${NC}"
-    pstree -p systemd | grep -E "(tech-demo-client|tech-demo-config)" || true
+    pstree -p 1 2>/dev/null | grep -E "(tech-demo-client|tech-demo-config)" || ps aux | grep -E "(tech-demo-client|tech-demo-config)" | grep -v grep || print_info "No active service processes found yet"
     
     sleep "$PAUSE_MEDIUM"
     
