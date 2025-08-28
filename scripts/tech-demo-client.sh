@@ -46,8 +46,13 @@ if [[ -f "${CONFIG_FILE}" ]]; then
         
         # Simulate some work
         echo "Simulating tech demo client work..."
-        sleep 2
-        echo "Tech demo client completed successfully"
+        echo "Service running continuously for demonstration..."
+        
+        # Keep running for demonstration purposes
+        while true; do
+            echo "$(date): ${CLIENT_ID} service active with secure credentials"
+            sleep 30
+        done
         
     else
         echo "WARNING: jq not available, cannot parse JSON config"
