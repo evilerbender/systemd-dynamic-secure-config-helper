@@ -410,21 +410,43 @@ cleanup_demo() {
 check_installation() {
     # Check if tech-demo services are installed
     if ! systemctl list-unit-files | grep -q "tech-demo-config-helper.socket"; then
-        print_error "Tech demo services not installed!"
-        print_info "Please install the services first:"
-        echo -e "${CYAN}  sudo ./install.sh${NC}"
+        print_warning "Tech demo services not installed!"
         echo
-        print_info "Or manually install:"
-        echo -e "${CYAN}  sudo cp scripts/tech-demo-config-helper.sh /usr/local/bin/${NC}"
-        echo -e "${CYAN}  sudo cp scripts/tech-demo-client.sh /usr/local/bin/${NC}"
-        echo -e "${CYAN}  sudo cp systemd/tech-demo-config-helper.socket /etc/systemd/system/${NC}"
-        echo -e "${CYAN}  sudo cp systemd/tech-demo-config-helper@.service /etc/systemd/system/${NC}"
-        echo -e "${CYAN}  sudo cp systemd/tech-demo-client@.service /etc/systemd/system/${NC}"
-        echo -e "${CYAN}  sudo systemctl daemon-reload${NC}"
-        echo -e "${CYAN}  sudo systemctl enable tech-demo-config-helper.socket${NC}"
-        echo -e "${CYAN}  sudo systemctl start tech-demo-config-helper.socket${NC}"
-        exit 1
+        echo -e "${YELLOW}Would you like to install them now? (Y/n)${NC}"
+        read -r response
+        if [[ "$response" =~ ^[Nn]$ ]]; then
+            print_info "Installation cancelled"
+            exit 0
+        fi
+        install_services
     fi
+}
+
+install_services() {
+    print_section "Installing systemd Dynamic Secure Configuration Helper"
+    
+    print_info "Installing scripts..."
+    cp scripts/tech-demo-config-helper.sh /usr/local/bin/
+    cp scripts/tech-demo-client.sh /usr/local/bin/
+    chmod +x /usr/local/bin/tech-demo-config-helper.sh
+    chmod +x /usr/local/bin/tech-demo-client.sh
+    
+    print_info "Installing systemd units..."
+    cp systemd/tech-demo-config-helper.socket /etc/systemd/system/
+    cp systemd/tech-demo-config-helper@.service /etc/systemd/system/
+    cp systemd/tech-demo-client@.service /etc/systemd/system/
+    
+    print_info "Installing drop-in configuration..."
+    mkdir -p /etc/systemd/system/tech-demo-client@.service.d/
+    cp systemd/tech-demo-client@.service.d/dependencies.conf /etc/systemd/system/tech-demo-client@.service.d/
+    
+    print_info "Reloading systemd and starting services..."
+    systemctl daemon-reload
+    systemctl enable tech-demo-config-helper.socket
+    systemctl start tech-demo-config-helper.socket
+    
+    print_success "systemd Dynamic Secure Configuration Helper installed successfully"
+    sleep 2
 }
 
 main() {
@@ -479,6 +501,49 @@ main() {
     echo
     echo -e "${BOLD}${GREEN}Thank you for attending this security demonstration!${NC}"
     echo
+    
+    # Offer to uninstall
+    echo
+    echo -e "${YELLOW}Would you like to uninstall the demo services? (y/N)${NC}"
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        uninstall_services
+    else
+        print_info "Services left installed for future use"
+    fi
+}
+
+uninstall_services() {
+    print_section "Uninstalling Services"
+    
+    print_info "Stopping and disabling services..."
+    systemctl stop tech-demo-config-helper.socket 2>/dev/null || true
+    systemctl disable tech-demo-config-helper.socket 2>/dev/null || true
+    
+    # Stop any running client services
+    for service in $(systemctl list-units --type=service --state=active | grep "tech-demo-client@" | awk '{print $1}' 2>/dev/null || true); do
+        print_info "Stopping ${service}..."
+        systemctl stop "$service" 2>/dev/null || true
+    done
+
+    print_info "Removing systemd units..."
+    rm -f /etc/systemd/system/tech-demo-config-helper.socket
+    rm -f /etc/systemd/system/tech-demo-config-helper@.service
+    rm -f /etc/systemd/system/tech-demo-client@.service
+    rm -rf /etc/systemd/system/tech-demo-client@.service.d/
+
+    print_info "Removing scripts..."
+    rm -f /usr/local/bin/tech-demo-config-helper.sh
+    rm -f /usr/local/bin/tech-demo-client.sh
+
+    # Remove socket file if it exists
+    rm -f /run/tech-demo-config-helper.sock
+
+    print_info "Reloading systemd..."
+    systemctl daemon-reload
+
+    print_success "systemd Dynamic Secure Configuration Helper uninstalled successfully"
+    print_success "System returned to clean state"
 }
 
 # Run the presentation
